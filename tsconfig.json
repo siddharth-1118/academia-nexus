@@ -21,12 +21,7 @@
     "allowJs": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@components/*": ["src/components/*"],
-      "@hooks/*": ["src/hooks/*"],
-      "@utils/*": ["src/utils/*"],
-      "@store/*": ["src/store/*"],
-      "@types/*": ["src/types/*"]
+"@/*": ["./*"]      
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
