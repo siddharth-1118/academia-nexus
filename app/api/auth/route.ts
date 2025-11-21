@@ -1,21 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Demo scraper - In production, use Puppeteer on a backend server
-const demoStudentData = {
-  'CB.EN.U4CSE21001': {
-    name: 'Sai Siddharth',
-    department: 'Computer Science & Engineering',
-    semester: 6,
-    courses: [
-      { name: 'Data Structures', credits: 4, grade: 'A+', attendance: 95 },
-      { name: 'Web Technologies', credits: 3, grade: 'A', attendance: 92 },
-      { name: 'Database Systems', credits: 4, grade: 'A+', attendance: 98 },
-      { name: 'AI & ML', credits: 3, grade: 'A', attendance: 90 },
-    ],
-    gpa: 8.7,
-    overallAttendance: 94,
-  },
-};
+// Web scraper for SRM Academia portal using Puppeteer
+const ACADEMIA_URL = 'https://academia.srmist.edu.in/#WELCOME';
 
 export async function POST(req: NextRequest) {
   try {
@@ -29,21 +15,34 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Demo authentication (replace with actual Puppeteer scraping in production)
-    if (netid === 'CB.EN.U4CSE21001' && password === 'demo123') {
-      const studentData = demoStudentData[netid as keyof typeof demoStudentData];
+    // For now, return mock data
+    // In production, this would use Puppeteer to scrape real data
+    const mockData: { [key: string]: any } = {};
+
+    // If user enters any valid NetID-like format, return demo data
+    if (netid.includes('U4C') || netid.includes('RA2')) {
       return NextResponse.json({
         success: true,
         student: {
           netid,
-          ...studentData,
+          name: 'Student Profile',
+          department: 'Computer Science & Engineering',
+          semester: 6,
+          gpa: 8.5,
+          overallAttendance: 93,
+          courses: [
+            { name: 'Data Structures', credits: 4, grade: 'A+', attendance: 95 },
+            { name: 'Web Technologies', credits: 3, grade: 'A', attendance: 92 },
+            { name: 'Database Systems', credits: 4, grade: 'A+', attendance: 98 },
+            { name: 'AI & ML', credits: 3, grade: 'A', attendance: 90 },
+          ],
           lastSync: new Date().toISOString(),
         },
       });
     }
 
     return NextResponse.json(
-      { error: 'Invalid credentials. Use demo123 as password.' },
+      { error: 'Invalid NetID format. Expected format like RA2511026010006 or CB.EN.U4CSE21001' },
       { status: 401 }
     );
   } catch (error: any) {
@@ -55,18 +54,22 @@ export async function POST(req: NextRequest) {
   }
 }
 
-/* 
-PUPPETEER IMPLEMENTATION (for production use):
+/*
+PUPPETEER IMPLEMENTATION (Production):
 
-import puppeteer from 'puppeteer';
+To enable real scraping from SRM Academia:
 
-const ACADEMIA_URL = 'https://academia.srmist.edu.in/#WELCOME';
+1. Install Puppeteer:
+   npm install puppeteer
+
+2. Replace the mock data section with this code:
 
 async function scrapeAcademiaPortal(netid: string, password: string) {
+  const puppeteer = await import('puppeteer');
   let browser;
   try {
     browser = await puppeteer.launch({
-      headless: true,
+      headless: 'new',
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
 
@@ -74,25 +77,30 @@ async function scrapeAcademiaPortal(netid: string, password: string) {
     await page.goto(ACADEMIA_URL, { waitUntil: 'networkidle2' });
 
     // Login
-    await page.type('input[name="uid"]', netid);
-    await page.type('input[name="password"]', password);
-    await page.click('button[type="submit"]');
-    await page.waitForNavigation();
+    await page.type('input[name="login_id"]', netid, { delay: 100 });
+    await page.type('input[name="passwd"]', password, { delay: 100 });
+    await page.click('input[type="submit"]');
+    await page.waitForNavigation({ waitUntil: 'networkidle2' });
 
-    // Extract student data
-    const studentData = await page.evaluate(() => {
+    // Extract student profile
+    const studentProfile = await page.evaluate(() => {
       const name = document.querySelector('.student-name')?.textContent || '';
-      const gpa = parseFloat(document.querySelector('.gpa-value')?.textContent || '0');
-      const courses = Array.from(document.querySelectorAll('tr.course-row')).map(row => ({
+      const dept = document.querySelector('.department')?.textContent || '';
+      const gpa = parseFloat(document.querySelector('.cgpa-value')?.textContent || '0');
+      return { name, dept, gpa };
+    });
+
+    // Extract courses
+    const courses = await page.evaluate(() => {
+      return Array.from(document.querySelectorAll('tr.course')).map(row => ({
         name: row.querySelector('.course-name')?.textContent || '',
+        credits: parseInt(row.querySelector('.credits')?.textContent || '0'),
         grade: row.querySelector('.grade')?.textContent || '',
         attendance: parseInt(row.querySelector('.attendance')?.textContent || '0'),
       }));
-
-      return { name, gpa, courses };
     });
 
-    return studentData;
+    return { ...studentProfile, courses };
   } finally {
     if (browser) await browser.close();
   }
