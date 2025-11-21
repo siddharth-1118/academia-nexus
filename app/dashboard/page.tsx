@@ -23,7 +23,6 @@ interface StudentData {
 const StatCard = ({ icon, label, value, gradient, bgColor }: any) => {
   return (
     <div className={`relative group overflow-hidden rounded-2xl ${bgColor} backdrop-blur-xl border border-white/10 p-6 hover:border-white/30 transition-all duration-300 hover:shadow-2xl cursor-pointer`}>
-      {/* Animated gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-3">
@@ -33,7 +32,6 @@ const StatCard = ({ icon, label, value, gradient, bgColor }: any) => {
         <p className="text-slate-400 text-sm uppercase tracking-wider font-semibold mb-1">{label}</p>
         <p className={`text-4xl font-black ${gradient} bg-clip-text text-transparent`}>{value}</p>
       </div>
-      {/* Shine effect */}
       <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/5 rounded-full group-hover:translate-x-40 group-hover:translate-y-40 transition-transform duration-500" />
     </div>
   );
@@ -41,26 +39,21 @@ const StatCard = ({ icon, label, value, gradient, bgColor }: any) => {
 
 const CourseCard = ({ course, index }: any) => {
   const colors = [
-    'from-blue-500 to-cyan-500',
-    'from-purple-500 to-pink-500',
-    'from-green-500 to-emerald-500',
-    'from-orange-500 to-red-500',
+    { gradient: 'from-blue-500 to-cyan-500', text: 'text-cyan-400' },
+    { gradient: 'from-purple-500 to-pink-500', text: 'text-pink-400' },
+    { gradient: 'from-green-500 to-emerald-500', text: 'text-emerald-400' },
+    { gradient: 'from-orange-500 to-red-500', text: 'text-red-400' },
   ];
   const color = colors[index % 4];
 
   return (
     <div className="group relative">
-      {/* Background gradient blur */}
-      <div className={`absolute -inset-0.5 bg-gradient-to-r ${color} rounded-3xl opacity-0 group-hover:opacity-100 blur transition-opacity duration-500"`/>
+      <div className={`absolute -inset-0.5 bg-gradient-to-r ${color.gradient} rounded-3xl opacity-0 group-hover:opacity-100 blur transition-opacity duration-500`} />
       
       <div className="relative bg-slate-900/90 backdrop-blur-xl rounded-3xl p-8 border border-slate-700/50 hover:border-slate-600 transition-all duration-300 h-full">
-        {/* Animated border gradient */}
-        <div className="absolute inset-0 rounded-3xl p-px bg-gradient-to-r ${color} opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        
         <div className="relative z-10">
-          {/* Course header */}
           <div className="mb-6">
-            <div className={`inline-block bg-gradient-to-r ${color} bg-clip-text text-transparent text-xs font-black uppercase tracking-widest mb-2`}>
+            <div className={`inline-block bg-gradient-to-r ${color.gradient} bg-clip-text text-transparent text-xs font-black uppercase tracking-widest mb-2`}>
               {course.code}
             </div>
             <h3 className="text-2xl font-black text-white group-hover:translate-x-2 transition-transform duration-300">
@@ -68,7 +61,6 @@ const CourseCard = ({ course, index }: any) => {
             </h3>
           </div>
 
-          {/* Stats grid */}
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="bg-slate-800/50 rounded-xl p-4 group-hover:bg-slate-800 transition-colors">
               <p className="text-slate-400 text-xs uppercase font-bold mb-1">Grade</p>
@@ -80,15 +72,14 @@ const CourseCard = ({ course, index }: any) => {
             </div>
           </div>
 
-          {/* Attendance bar */}
           <div>
             <div className="flex justify-between mb-2">
               <span className="text-slate-400 text-sm font-bold">ATTENDANCE</span>
-              <span className={`text-sm font-black bg-gradient-to-r ${color} bg-clip-text text-transparent`}>{course.attendance}%</span>
+              <span className={`text-sm font-black bg-gradient-to-r ${color.gradient} bg-clip-text text-transparent`}>{course.attendance}%</span>
             </div>
             <div className="w-full bg-slate-800 rounded-full h-3 overflow-hidden">
               <div
-                className={`h-full bg-gradient-to-r ${color} rounded-full transition-all duration-500 group-hover:shadow-lg`}
+                className={`h-full bg-gradient-to-r ${color.gradient} rounded-full transition-all duration-500 group-hover:shadow-lg`}
                 style={{ width: `${course.attendance}%` }}
               />
             </div>
